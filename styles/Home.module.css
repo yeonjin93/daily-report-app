@@ -11,7 +11,6 @@
   color: #333;
 }
 
-/* 탭 바 */
 .tabBar {
   display: flex;
   gap: 10px;
@@ -27,20 +26,13 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tabBtn:hover {
-  background: #e0e0e0;
 }
 
 .tabBtn.tabActive {
   background: #3b82f6;
   color: white;
-  border-color: #3b82f6;
 }
 
-/* Daily Report 탭 레이아웃 */
 .layout {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
@@ -56,7 +48,6 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .panel h2 {
@@ -65,19 +56,11 @@
   color: #333;
 }
 
-.panel h3 {
-  font-size: 14px;
-  margin-top: 12px;
-  margin-bottom: 8px;
-  color: #555;
-}
-
 .searchBox {
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 14px;
   margin-bottom: 12px;
 }
 
@@ -95,21 +78,11 @@
   border: 1px solid #eee;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
-  color: #333;
-  transition: all 0.2s;
-}
-
-.listItem:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
 }
 
 .listItem.active {
   background: #3b82f6;
   color: white;
-  border-color: #3b82f6;
-  font-weight: 500;
 }
 
 .history {
@@ -118,20 +91,6 @@
   padding-top: 12px;
   border-top: 1px solid #eee;
   overflow-y: auto;
-}
-
-.empty {
-  color: #999;
-  font-size: 13px;
-  text-align: center;
-  padding: 20px 0;
-}
-
-.moreInfo {
-  color: #999;
-  font-size: 12px;
-  margin-top: 8px;
-  font-style: italic;
 }
 
 .historyItem {
@@ -156,34 +115,6 @@
   color: white;
   border-radius: 3px;
   font-size: 11px;
-  margin-bottom: 4px;
-}
-
-.historyDetail {
-  color: #666;
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.historyContent {
-  color: #333;
-  margin-top: 4px;
-  line-height: 1.4;
-}
-
-.deleteBtn {
-  font-size: 12px;
-  color: #ef4444;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 4px;
-  text-decoration: underline;
-}
-
-.deleteBtn:hover {
-  color: #dc2626;
 }
 
 .formGroup {
@@ -195,7 +126,6 @@
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 4px;
-  color: #333;
 }
 
 .formGroup input,
@@ -205,20 +135,6 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
-  font-family: inherit;
-  background: #fafafa;
-  color: #333;
-}
-
-.formGroup input:focus,
-.formGroup textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background: white;
-}
-
-.formGroup textarea {
-  resize: vertical;
 }
 
 .chipGroup {
@@ -232,21 +148,12 @@
   background: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 20px;
-  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s;
-  color: #333;
-}
-
-.chip:hover {
-  background: #e0e0e0;
-  border-color: #bbb;
 }
 
 .chip.chipActive {
   background: #3b82f6;
   color: white;
-  border-color: #3b82f6;
 }
 
 .buttonGroup {
@@ -255,38 +162,25 @@
   margin-top: 16px;
 }
 
-.btnPrimary,
+.btnPrimary {
+  flex: 1;
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .btnSecondary {
   flex: 1;
   padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btnPrimary {
-  background: #3b82f6;
-  color: white;
-}
-
-.btnPrimary:hover {
-  background: #2563eb;
-}
-
-.btnSecondary {
   background: #f0f0f0;
-  color: #333;
   border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.btnSecondary:hover {
-  background: #e0e0e0;
-}
-
-/* 방문 이력 조회 탭 */
 .historyLayout {
   display: grid;
   grid-template-columns: 300px 1fr;
@@ -300,20 +194,6 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  max-height: 800px;
-  overflow-y: auto;
-}
-
-.historySidebar h2 {
-  font-size: 14px;
-  margin-bottom: 12px;
-  color: #333;
-  margin-top: 0;
-}
-
-.historySidebar h2:not(:first-child) {
-  margin-top: 20px;
 }
 
 .historyContentPanel {
@@ -321,7 +201,6 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
 }
@@ -333,25 +212,13 @@
   margin-bottom: 16px;
 }
 
-.historyHeader h2 {
-  font-size: 18px;
-  color: #333;
-  margin: 0;
-}
-
 .downloadBtn {
   padding: 8px 16px;
   background: #10b981;
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.downloadBtn:hover {
-  background: #059669;
 }
 
 .searchBoxHistory {
@@ -359,13 +226,11 @@
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 14px;
   margin-bottom: 16px;
 }
 
 .historyTable {
   overflow-x: auto;
-  flex: 1;
 }
 
 .tableHeader {
@@ -376,12 +241,7 @@
   background: #f9f9f9;
   border: 1px solid #eee;
   border-radius: 6px;
-  font-weight: 500;
-  font-size: 13px;
-  color: #333;
   margin-bottom: 8px;
-  position: sticky;
-  top: 0;
 }
 
 .tableRow {
@@ -393,17 +253,9 @@
   border: 1px solid #eee;
   border-radius: 6px;
   margin-bottom: 8px;
-  font-size: 13px;
-  color: #333;
-  align-items: center;
-}
-
-.col1, .col2, .col3, .col4, .col5, .col6 {
-  word-break: break-word;
 }
 
 .categoryBadge {
-  display: inline-block;
   padding: 2px 8px;
   background: #3b82f6;
   color: white;
@@ -411,11 +263,8 @@
   font-size: 11px;
 }
 
-@media (max-width: 1200px) {
-  .layout {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .historyLayout {
-    grid-template-columns: 1fr;
-  }
+.empty {
+  color: #999;
+  text-align: center;
+  padding: 20px 0;
+}
