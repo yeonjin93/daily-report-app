@@ -331,3 +331,185 @@ export default function Home() {
           </div>
 
           <div className={styles.panel}>
+            <h2>Daily Report</h2>
+            
+            <div className={styles.formGroup}>
+              <label>날짜</label>
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({...formData, date: e.target.value})}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>대리점</label>
+              <input
+                type="text"
+                disabled
+                value={selectedDist?.name || ''}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>병원</label>
+              <input
+                type="text"
+                disabled
+                value={selectedHosp?.name || ''}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>과 (Department)</label>
+              <input
+                type="text"
+                placeholder="e.g., Stomach, Colon..."
+                value={formData.department}
+                onChange={(e) => setFormData({...formData, department: e.target.value})}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>의료진 (Doctor Name)</label>
+              <input
+                type="text"
+                placeholder="의사 이름"
+                value={formData.doctorName}
+                onChange={(e) => setFormData({...formData, doctorName: e.target.value})}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>카테고리</label>
+              <div className={styles.chipGroup}>
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat}
+                    className={`${styles.chip} ${selectedCat === cat ? styles.chipActive : ''}`}
+                    onClick={() => setSelectedCat(selectedCat === cat ? null : cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>내용</label>
+              <textarea
+                placeholder="방문 내용, 피드백..."
+                value={formData.content}
+                onChange={(e) => setFormData({...formData, content: e.target.value})}
+                rows={5}
+              />
+            </div>
+
+            <div className={styles.buttonGroup}>
+              <button className={styles.btnPrimary} onClick={handleSaveReport}>
+                저장
+              </button>
+              <button className={styles.btnSecondary} onClick={clearForm}>
+                초기화
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: 방문 이력 조회 */}
+      {tab === 'history' && (
+        <div className={styles.historyLayout}>
+          <div className={styles.historySidebar}>
+            <h2>대리점 선택</h2>
+            <div className={styles.list}>
+              {distributors.map(dist => (
+                <div
+                  key={dist.id}
+                  className={`${styles.listItem} ${selectedDistHistory?.id === dist.id ? styles.active : ''}`}
+                  onClick={() => setSelectedDistHistory(dist)}
+                >
+                  {dist.name}
+                </div>
+              ))}
+            </div>
+
+            <h2 style={{marginTop: '20px'}}>병원 선택</h2>
+            <div className={styles.list}>
+              {hospitals.map(hosp => (
+                <div
+                  key={hosp.id}
+                  className={`${styles.listItem} ${selectedHospHistory?.id === hosp.id ? styles.active : ''}`}
+                  onClick={() => setSelectedHospHistory(hosp)}
+                >
+                  {hosp.name}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.historyContent}>
+            <div className={styles.historyHeader}>
+              <h2>{selectedHospHistory ? selectedHospHistory.name + ' - 전체 기록' : '병원을 선택해주세요'}</h2>
+              {selectedHospHistory && (
+                <button className={styles.downloadBtn} onClick={downloadCSV}>
+                  📥 CSV 다운로드
+                </button>
+              )}
+            </div>
+
+            {selectedHospHistory && (
+              <input
+                type="text"
+                placeholder="날짜, 과, 의료진으로 검색..."
+                value={searchHistory}
+                onChange={(e) => setSearchHistory(e.target.value)}
+                className={styles.searchBoxHistory}
+              />
+            )}
+
+            {selectedHospHistory ? (
+              <div className={styles.historyTable}>
+                {filteredHistoryReports.length === 0 ? (
+                  <p className={styles.empty}>기록이 없습니다</p>
+                ) : (
+                  <>
+                    <div className={styles.tableHeader}>
+                      <div className={styles.col1}>날짜</div>
+                      <div className={styles.col2}>카테고리</div>
+                      <div className={styles.col3}>과</div>
+                      <div className={styles.col4}>의료진</div>
+                      <div className={styles.col5}>내용</div>
+                      <div className={styles.col6}>삭제</div>
+                    </div>
+                    {filteredHistoryReports.map(report => (
+                      <div key={report.id} className={styles.tableRow}>
+                        <div className={styles.col1}>{report.date}</div>
+                        <div className={styles.col2}>
+                          <span className={styles.categoryBadge}>{report.category}</span>
+                        </div>
+                        <div className={styles.col3}>{report.department}</div>
+                        <div className={styles.col4}>{report.doctor_name}</div>
+                        <div className={styles.col5}>{report.content}</div>
+                        <div className={styles.col6}>
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => handleDeleteHistoryReport(report.id)}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            ) : (
+              <p className={styles.empty} style={{marginTop: '40px'}}>왼쪽에서 대리점과 병원을 선택해주세요</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
