@@ -448,7 +448,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className={styles.historyContent}>
+          <div className={styles.historyContentPanel}>
             <div className={styles.historyHeader}>
               <h2>{selectedHospHistory ? selectedHospHistory.name + ' - 전체 기록' : '병원을 선택해주세요'}</h2>
               {selectedHospHistory && (
