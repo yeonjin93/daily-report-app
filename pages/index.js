@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import styles from '../styles/Home.module.css';
+import { eachDayOfInterval, startOfMonth, endOfMonth, format, startOfWeek, endOfWeek, isSameMonth } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 const CATEGORIES = ['샘플링', '코딩', '불만', '제품설명회'];
 
 export default function Home() {
-  const [tab, setTab] = useState('report'); // 'report' or 'history'
+  const [tab, setTab] = useState('report');
   const [distributors, setDistributors] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [reports, setReports] = useState([]);
@@ -17,6 +19,11 @@ export default function Home() {
   const [selectedHospHistory, setSelectedHospHistory] = useState(null);
   const [historyReports, setHistoryReports] = useState([]);
   const [searchHistory, setSearchHistory] = useState('');
+  
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [allReports, setAllReports] = useState({});
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(new Date().toISOString().split('T')[0]);
+  const [calendarReports, setCalendarReports] = useState([]);
   
   const [searchDist, setSearchDist] = useState('');
   const [formData, setFormData] = useState({
@@ -53,6 +60,14 @@ export default function Home() {
       loadHistoryReports(selectedHospHistory.id);
     }
   }, [selectedHospHistory]);
+
+  useEffect(() => {
+    loadCalendarData(currentMonth);
+  }, [currentMonth]);
+
+  useEffect(() => {
+    loadCalendarReports(selectedCalendarDate);
+  }, [selectedCalendarDate]);
 
   const loadDistributors = async () => {
     try {
@@ -131,6 +146,49 @@ export default function Home() {
     }
   };
 
+  const loadCalendarData = async (date) => {
+    try {
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+      
+      const { data, error } = await supabase
+        .from('daily_reports')
+        .select('*, distributors(name), hospitals(name)')
+        .gte('date', monthStart.toISOString().split('T')[0])
+        .lte('date', monthEnd.toISOString().split('T')[0])
+        .order('date', { ascending: false });
+      
+      if (error) throw error;
+      
+      const reportsByDate = {};
+      data.forEach(report => {
+        if (!reportsByDate[report.date]) {
+          reportsByDate[report.date] = [];
+        }
+        reportsByDate[report.date].push(report);
+      });
+      
+      setAllReports(reportsByDate);
+    } catch (error) {
+      console.error('Error loading calendar data:', error);
+    }
+  };
+
+  const loadCalendarReports = async (date) => {
+    try {
+      const { data, error } = await supabase
+        .from('daily_reports')
+        .select('*, distributors(name), hospitals(name)')
+        .eq('date', date)
+        .order('date', { ascending: false });
+      
+      if (error) throw error;
+      setCalendarReports(data || []);
+    } catch (error) {
+      console.error('Error loading calendar reports:', error);
+    }
+  };
+
   const handleSaveReport = async () => {
     if (!selectedDist || !selectedHosp || !selectedCat) {
       alert('대리점, 병원, 카테고리를 모두 선택해주세요!');
@@ -155,6 +213,7 @@ export default function Home() {
       alert('저장되었습니다!');
       clearForm();
       loadReports(selectedHosp.id);
+      loadCalendarData(currentMonth);
     } catch (error) {
       console.error('Error saving report:', error);
       alert('저장 실패: ' + error.message);
@@ -201,6 +260,24 @@ export default function Home() {
     }
   };
 
+  const handleDeleteCalendarReport = async (reportId) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('daily_reports')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+      loadCalendarData(currentMonth);
+      loadCalendarReports(selectedCalendarDate);
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      alert('삭제 실패: ' + error.message);
+    }
+  };
+
   const downloadCSV = () => {
     if (historyReports.length === 0) {
       alert('다운로드할 데이터가 없습니다!');
@@ -229,6 +306,34 @@ export default function Home() {
     link.click();
   };
 
+  const downloadCalendarCSV = () => {
+    if (calendarReports.length === 0) {
+      alert('다운로드할 데이터가 없습니다!');
+      return;
+    }
+
+    const headers = ['날짜', '대리점', '병원', '카테고리', '과', '의료진', '내용'];
+    const rows = calendarReports.map(r => [
+      r.date,
+      r.distributors?.name || '',
+      r.hospitals?.name || '',
+      r.category,
+      r.department || '',
+      r.doctor_name || '',
+      r.content || ''
+    ]);
+
+    const csv = [headers, ...rows].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `방문기록_${selectedCalendarDate}.csv`;
+    link.click();
+  };
+
   const clearForm = () => {
     setFormData({
       date: new Date().toISOString().split('T')[0],
@@ -249,11 +354,77 @@ export default function Home() {
     r.doctor_name.toLowerCase().includes(searchHistory.toLowerCase())
   );
 
+  // 캘린더 렌더링
+  const renderCalendar = () => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+    
+    const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+    const weeks = [];
+    
+    for (let i = 0; i < days.length; i += 7) {
+      weeks.push(days.slice(i, i + 7));
+    }
+    
+    return (
+      <div className={styles.calendar}>
+        <div className={styles.calendarHeader}>
+          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}>←</button>
+          <h2>{format(currentMonth, 'yyyy년 M월', { locale: ko })}</h2>
+          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>→</button>
+        </div>
+        
+        <div className={styles.calendarWeekdays}>
+          <div>일</div>
+          <div>월</div>
+          <div>화</div>
+          <div>수</div>
+          <div>목</div>
+          <div>금</div>
+          <div>토</div>
+        </div>
+        
+        <div className={styles.calendarDays}>
+          {weeks.map((week, weekIdx) => (
+            <div key={weekIdx} className={styles.calendarWeek}>
+              {week.map(day => {
+                const dateStr = day.toISOString().split('T')[0];
+                const dayReports = allReports[dateStr] || [];
+                const isCurrentMonth = isSameMonth(day, currentMonth);
+                const isSelected = dateStr === selectedCalendarDate;
+                
+                return (
+                  <div
+                    key={dateStr}
+                    className={`${styles.calendarDay} ${!isCurrentMonth ? styles.otherMonth : ''} ${isSelected ? styles.selectedDay : ''}`}
+                    onClick={() => setSelectedCalendarDate(dateStr)}
+                  >
+                    <div className={styles.dayNumber}>{format(day, 'd')}</div>
+                    {dayReports.length > 0 && (
+                      <div className={styles.reportCount}>
+                        {dayReports.map((r, idx) => (
+                          <div key={idx} className={styles.reportBadge} title={r.hospitals?.name}>
+                            {r.category}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.container}>
       <h1>Daily Report Management</h1>
       
-      {/* 탭 버튼 */}
       <div className={styles.tabBar}>
         <button 
           className={`${styles.tabBtn} ${tab === 'report' ? styles.tabActive : ''}`}
@@ -267,9 +438,14 @@ export default function Home() {
         >
           📋 방문 이력 조회
         </button>
+        <button 
+          className={`${styles.tabBtn} ${tab === 'calendar' ? styles.tabActive : ''}`}
+          onClick={() => setTab('calendar')}
+        >
+          📅 캘린더 조회
+        </button>
       </div>
 
-      {/* TAB 1: Daily Report 입력 */}
       {tab === 'report' && (
         <div className={styles.layout}>
           <div className={styles.panel}>
@@ -417,7 +593,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* TAB 2: 방문 이력 조회 */}
       {tab === 'history' && (
         <div className={styles.historyLayout}>
           <div className={styles.historySidebar}>
@@ -507,6 +682,54 @@ export default function Home() {
             ) : (
               <p className={styles.empty} style={{marginTop: '40px'}}>왼쪽에서 대리점과 병원을 선택해주세요</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'calendar' && (
+        <div className={styles.calendarContainer}>
+          <div className={styles.calendarLeft}>
+            {renderCalendar()}
+          </div>
+
+          <div className={styles.calendarRight}>
+            <div className={styles.historyHeader}>
+              <h2>{selectedCalendarDate} - 방문 기록</h2>
+              {calendarReports.length > 0 && (
+                <button className={styles.downloadBtn} onClick={downloadCalendarCSV}>
+                  📥 CSV 다운로드
+                </button>
+              )}
+            </div>
+
+            <div className={styles.historyTable}>
+              {calendarReports.length === 0 ? (
+                <p className={styles.empty}>이 날짜에 기록이 없습니다</p>
+              ) : (
+                <>
+                  <div className={styles.tableHeader}>
+                    <div className={styles.colDist}>대리점</div>
+                    <div className={styles.colHosp}>병원</div>
+                    <div className={styles.colCat}>카테고리</div>
+                    <div className={styles.colDept}>과</div>
+                    <div className={styles.colDoc}>의료진</div>
+                    <div className={styles.colCon}>내용</div>
+                  </div>
+                  {calendarReports.map(report => (
+                    <div key={report.id} className={styles.tableRow}>
+                      <div className={styles.colDist}>{report.distributors?.name}</div>
+                      <div className={styles.colHosp}>{report.hospitals?.name}</div>
+                      <div className={styles.colCat}>
+                        <span className={styles.categoryBadge}>{report.category}</span>
+                      </div>
+                      <div className={styles.colDept}>{report.department}</div>
+                      <div className={styles.colDoc}>{report.doctor_name}</div>
+                      <div className={styles.colCon}>{report.content}</div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
