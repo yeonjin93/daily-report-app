@@ -241,6 +241,7 @@ export default function Home() {
   };
 
   const handleDeleteHistoryReport = async (reportId) => {
+    console.log('삭제 시도:', reportId);
     if (!confirm('정말 삭제하시겠습니까?')) return;
 
     try {
