@@ -56,11 +56,19 @@
   color: #333;
 }
 
+.panel h3 {
+  font-size: 14px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  color: #555;
+}
+
 .searchBox {
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
+  font-size: 14px;
   margin-bottom: 12px;
 }
 
@@ -78,6 +86,8 @@
   border: 1px solid #eee;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  color: #333;
 }
 
 .listItem.active {
@@ -126,6 +136,7 @@
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 4px;
+  color: #333;
 }
 
 .formGroup input,
@@ -196,6 +207,12 @@
   padding: 16px;
 }
 
+.historySidebar h2 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
 .historyContentPanel {
   background: white;
   border: 1px solid #ddd;
@@ -210,6 +227,12 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.historyHeader h2 {
+  font-size: 18px;
+  color: #333;
+  margin: 0;
 }
 
 .downloadBtn {
@@ -231,6 +254,7 @@
 
 .historyTable {
   overflow-x: auto;
+  flex: 1;
 }
 
 .tableHeader {
@@ -241,6 +265,9 @@
   background: #f9f9f9;
   border: 1px solid #eee;
   border-radius: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #333;
   margin-bottom: 8px;
 }
 
@@ -253,9 +280,12 @@
   border: 1px solid #eee;
   border-radius: 6px;
   margin-bottom: 8px;
+  font-size: 13px;
+  color: #333;
 }
 
 .categoryBadge {
+  display: inline-block;
   padding: 2px 8px;
   background: #3b82f6;
   color: white;
@@ -267,4 +297,166 @@
   color: #999;
   text-align: center;
   padding: 20px 0;
+}
+
+.moreInfo {
+  color: #999;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* 캘린더 스타일 */
+.calendarContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.calendarLeft {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.calendarRight {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar {
+  width: 100%;
+}
+
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendarHeader h2 {
+  font-size: 20px;
+  margin: 0;
+  color: #333;
+}
+
+.calendarHeader button {
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.calendarWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 10px;
+  background: #ddd;
+}
+
+.calendarWeekdays div {
+  background: #f0f0f0;
+  padding: 8px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 12px;
+  color: #333;
+}
+
+.calendarDays {
+  background: #ddd;
+  gap: 1px;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendarWeek {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.calendarDay {
+  background: white;
+  padding: 8px;
+  min-height: 80px;
+  cursor: pointer;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.calendarDay:hover {
+  background: #f9f9f9;
+}
+
+.calendarDay.selectedDay {
+  background: #e0f2fe;
+  border: 2px solid #3b82f6;
+}
+
+.calendarDay.otherMonth {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.dayNumber {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.reportCount {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reportBadge {
+  font-size: 10px;
+  padding: 2px 4px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colDist, .colHosp, .colCat, .colDept, .colDoc, .colCon {
+  word-break: break-word;
+}
+
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .calendarContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .tableHeader, .tableRow {
+    grid-template-columns: 80px 70px 80px 80px 1fr 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .historyLayout {
+    grid-template-columns: 1fr;
+  }
 }
