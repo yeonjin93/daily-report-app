@@ -24,9 +24,10 @@ export default function Home() {
   const [allReports, setAllReports] = useState({});
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(new Date().toISOString().split('T')[0]);
   const [calendarReports, setCalendarReports] = useState([]);
-  const [editingId, setEditingId] = useState(null);
   
   const [searchDist, setSearchDist] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     department: '',
@@ -34,42 +35,50 @@ export default function Home() {
     content: ''
   });
 
+  // 초기 로드
   useEffect(() => {
     loadDistributors();
   }, []);
 
+  // 대리점 선택 시
   useEffect(() => {
     if (selectedDist) {
       loadHospitals(selectedDist.id);
     }
   }, [selectedDist]);
 
+  // 병원 선택 시 (Daily Report)
   useEffect(() => {
     if (selectedHosp) {
       loadReports(selectedHosp.id);
     }
   }, [selectedHosp]);
 
+  // 이력 조회 - 대리점 선택
   useEffect(() => {
     if (selectedDistHistory) {
       loadHospitalsHistory(selectedDistHistory.id);
     }
   }, [selectedDistHistory]);
 
+  // 이력 조회 - 병원 선택
   useEffect(() => {
     if (selectedHospHistory) {
       loadHistoryReports(selectedHospHistory.id);
     }
   }, [selectedHospHistory]);
 
+  // 캘린더 월 변경
   useEffect(() => {
     loadCalendarData(currentMonth);
   }, [currentMonth]);
 
+  // 캘린더 날짜 선택
   useEffect(() => {
     loadCalendarReports(selectedCalendarDate);
   }, [selectedCalendarDate]);
 
+  // ===== 데이터 로드 함수 =====
   const loadDistributors = async () => {
     try {
       const { data, error } = await supabase
@@ -80,8 +89,8 @@ export default function Home() {
       if (error) throw error;
       setDistributors(data || []);
     } catch (error) {
-      console.error('Error loading distributors:', error);
-      alert('대리점 로드 실패: ' + error.message);
+      console.error('Error:', error);
+      alert('대리점 로드 실패');
     }
   };
 
@@ -97,7 +106,7 @@ export default function Home() {
       setHospitals(data || []);
       setSelectedHosp(null);
     } catch (error) {
-      console.error('Error loading hospitals:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -113,7 +122,7 @@ export default function Home() {
       setHospitals(data || []);
       setSelectedHospHistory(null);
     } catch (error) {
-      console.error('Error loading hospitals:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -128,7 +137,7 @@ export default function Home() {
       if (error) throw error;
       setReports(data || []);
     } catch (error) {
-      console.error('Error loading reports:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -143,7 +152,7 @@ export default function Home() {
       if (error) throw error;
       setHistoryReports(data || []);
     } catch (error) {
-      console.error('Error loading reports:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -171,7 +180,7 @@ export default function Home() {
       
       setAllReports(reportsByDate);
     } catch (error) {
-      console.error('Error loading calendar data:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -186,10 +195,11 @@ export default function Home() {
       if (error) throw error;
       setCalendarReports(data || []);
     } catch (error) {
-      console.error('Error loading calendar reports:', error);
+      console.error('Error:', error);
     }
   };
 
+  // ===== 저장/수정/삭제 함수 =====
   const handleSaveReport = async () => {
     if (!selectedDist || !selectedHosp || !selectedCat) {
       alert('대리점, 병원, 카테고리를 모두 선택해주세요!');
@@ -197,47 +207,46 @@ export default function Home() {
     }
 
     try {
-      const { error } = await supabase
-        .from('daily_reports')
-        .insert([{
-          date: formData.date,
-          distributor_id: selectedDist.id,
-          hospital_id: selectedHosp.id,
-          department: formData.department,
-          doctor_name: formData.doctorName,
-          category: selectedCat,
-          content: formData.content
-        }]);
+      if (editingId) {
+        // 수정
+        const { error } = await supabase
+          .from('daily_reports')
+          .update({
+            date: formData.date,
+            department: formData.department,
+            doctor_name: formData.doctorName,
+            category: selectedCat,
+            content: formData.content
+          })
+          .eq('id', editingId);
 
-      if (error) throw error;
-      
-      alert('저장되었습니다!');
+        if (error) throw error;
+        alert('수정되었습니다!');
+        setEditingId(null);
+      } else {
+        // 신규 저장
+        const { error } = await supabase
+          .from('daily_reports')
+          .insert([{
+            date: formData.date,
+            distributor_id: selectedDist.id,
+            hospital_id: selectedHosp.id,
+            department: formData.department,
+            doctor_name: formData.doctorName,
+            category: selectedCat,
+            content: formData.content
+          }]);
+
+        if (error) throw error;
+        alert('저장되었습니다!');
+      }
+
       clearForm();
-      loadReports(selectedHosp.id);
+      if (selectedHosp) loadReports(selectedHosp.id);
       loadCalendarData(currentMonth);
     } catch (error) {
-      console.error('Error saving report:', error);
+      console.error('Error:', error);
       alert('저장 실패: ' + error.message);
-    }
-  };
-
-  const handleDeleteReport = async (reportId) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('daily_reports')
-        .delete()
-        .eq('id', reportId);
-
-      if (error) throw error;
-      
-      if (selectedHosp) {
-        loadReports(selectedHosp.id);
-      }
-    } catch (error) {
-      console.error('Error deleting report:', error);
-      alert('삭제 실패: ' + error.message);
     }
   };
 
@@ -255,40 +264,7 @@ export default function Home() {
     setTab('report');
   };
 
-const handleUpdateReport = async () => {
-    if (!selectedDist || !selectedHosp || !selectedCat || !editingId) {
-      alert('모든 필드를 입력해주세요!');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('daily_reports')
-        .update({
-          date: formData.date,
-          department: formData.department,
-          doctor_name: formData.doctorName,
-          category: selectedCat,
-          content: formData.content
-        })
-        .eq('id', editingId);
-
-      if (error) throw error;
-      
-      alert('수정되었습니다!');
-      setEditingId(null);
-      clearForm();
-      loadHistoryReports(selectedHospHistory.id);
-      loadCalendarData(currentMonth);
-    } catch (error) {
-      console.error('Error updating report:', error);
-      alert('수정 실패: ' + error.message);
-    }
-  };
-
-const handleDeleteReport = async (reportId) => {
-  const handleDeleteHistoryReport = async (reportId) => {
-    console.log('삭제 시도:', reportId);
+  const handleDeleteReport = async (reportId) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
 
     try {
@@ -298,40 +274,36 @@ const handleDeleteReport = async (reportId) => {
         .eq('id', reportId);
 
       if (error) throw error;
+      alert('삭제되었습니다!');
       
-      if (selectedHospHistory) {
-        loadHistoryReports(selectedHospHistory.id);
-      }
-    } catch (error) {
-      console.error('Error deleting report:', error);
-      alert('삭제 실패: ' + error.message);
-    }
-  };
-
-  const handleDeleteCalendarReport = async (reportId) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('daily_reports')
-        .delete()
-        .eq('id', reportId);
-
-      if (error) throw error;
+      if (selectedHosp) loadReports(selectedHosp.id);
+      if (selectedHospHistory) loadHistoryReports(selectedHospHistory.id);
       loadCalendarData(currentMonth);
       loadCalendarReports(selectedCalendarDate);
     } catch (error) {
-      console.error('Error deleting report:', error);
+      console.error('Error:', error);
       alert('삭제 실패: ' + error.message);
     }
   };
 
-  const downloadCSV = () => {
-    if (historyReports.length === 0) {
+  const downloadCSV = (data, filename, headers) => {
+    if (data.length === 0) {
       alert('다운로드할 데이터가 없습니다!');
       return;
     }
 
+    const csv = [headers, ...data].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+  const downloadHistoryCSV = () => {
     const headers = ['날짜', '대리점', '병원', '과', '의료진', '카테고리', '내용'];
     const rows = historyReports.map(r => [
       r.date,
@@ -342,24 +314,10 @@ const handleDeleteReport = async (reportId) => {
       r.category,
       r.content || ''
     ]);
-
-    const csv = [headers, ...rows].map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `방문기록_${selectedHospHistory?.name}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+    downloadCSV(rows, `방문기록_${selectedHospHistory?.name}`, headers);
   };
 
-const downloadCalendarCSV = () => {
-    if (calendarReports.length === 0) {
-      alert('다운로드할 데이터가 없습니다!');
-      return;
-    }
-
+  const downloadCalendarCSV = () => {
     const headers = ['대리점', '병원', '카테고리', '과', '의료진', '내용'];
     const rows = calendarReports.map(r => [
       r.distributors?.name || '',
@@ -369,16 +327,7 @@ const downloadCalendarCSV = () => {
       r.doctor_name || '',
       r.content || ''
     ]);
-
-    const csv = [headers, ...rows].map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `방문기록_${selectedCalendarDate}.csv`;
-    link.click();
+    downloadCSV(rows, `방문기록_${selectedCalendarDate}`, headers);
   };
 
   const clearForm = () => {
@@ -389,6 +338,9 @@ const downloadCalendarCSV = () => {
       content: ''
     });
     setSelectedCat(null);
+    setSelectedDist(null);
+    setSelectedHosp(null);
+    setEditingId(null);
   };
 
   const filteredDistributors = distributors.filter(d => 
@@ -401,7 +353,7 @@ const downloadCalendarCSV = () => {
     r.doctor_name.toLowerCase().includes(searchHistory.toLowerCase())
   );
 
-  // 캘린더 렌더링
+  // ===== 캘린더 렌더링 =====
   const renderCalendar = () => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
@@ -546,7 +498,7 @@ const downloadCalendarCSV = () => {
                 )}
                 {reports.length > 3 && (
                   <p className={styles.moreInfo}>
-                    외 {reports.length - 3}개 기록 → "이력 조회"에서 확인
+                    외 {reports.length - 3}개 기록
                   </p>
                 )}
               </div>
@@ -554,7 +506,7 @@ const downloadCalendarCSV = () => {
           </div>
 
           <div className={styles.panel}>
-            <h2>Daily Report</h2>
+            <h2>{editingId ? '기록 수정' : 'Daily Report'}</h2>
             
             <div className={styles.formGroup}>
               <label>날짜</label>
@@ -630,7 +582,7 @@ const downloadCalendarCSV = () => {
 
             <div className={styles.buttonGroup}>
               <button className={styles.btnPrimary} onClick={handleSaveReport}>
-                저장
+                {editingId ? '수정' : '저장'}
               </button>
               <button className={styles.btnSecondary} onClick={clearForm}>
                 초기화
@@ -674,7 +626,7 @@ const downloadCalendarCSV = () => {
             <div className={styles.historyHeader}>
               <h2>{selectedHospHistory ? selectedHospHistory.name + ' - 전체 기록' : '병원을 선택해주세요'}</h2>
               {selectedHospHistory && (
-                <button className={styles.downloadBtn} onClick={downloadCSV}>
+                <button className={styles.downloadBtn} onClick={downloadHistoryCSV}>
                   📥 CSV 다운로드
                 </button>
               )}
@@ -702,7 +654,7 @@ const downloadCalendarCSV = () => {
                       <div className={styles.col3}>과</div>
                       <div className={styles.col4}>의료진</div>
                       <div className={styles.col5}>내용</div>
-                      <div className={styles.col6}>삭제</div>
+                      <div className={styles.col6}>작업</div>
                     </div>
                     {filteredHistoryReports.map(report => (
                       <div key={report.id} className={styles.tableRow}>
@@ -717,19 +669,21 @@ const downloadCalendarCSV = () => {
                           <button
                             className={styles.deleteBtn}
                             onClick={() => handleEditReport(report)}
-                            style={{marginRight: '4px'}}
                             title="수정"
+                            style={{marginRight: '4px'}}
                           >
                             ✏️
                           </button>
                           <button
                             className={styles.deleteBtn}
-                            onClick={() => handleDeleteHistoryReport(report.id)}
+                            onClick={() => handleDeleteReport(report.id)}
                             title="삭제"
                           >
                             🗑️
                           </button>
                         </div>
+                      </div>
+                    ))}
                   </>
                 )}
               </div>
@@ -762,23 +716,23 @@ const downloadCalendarCSV = () => {
               ) : (
                 <>
                   <div className={styles.tableHeader}>
-                    <div className={styles.colDist}>대리점</div>
-                    <div className={styles.colHosp}>병원</div>
-                    <div className={styles.colCat}>카테고리</div>
-                    <div className={styles.colDept}>과</div>
-                    <div className={styles.colDoc}>의료진</div>
-                    <div className={styles.colCon}>내용</div>
+                    <div className={styles.col1}>대리점</div>
+                    <div className={styles.col2}>병원</div>
+                    <div className={styles.col3}>카테고리</div>
+                    <div className={styles.col4}>과</div>
+                    <div className={styles.col5}>의료진</div>
+                    <div className={styles.col6}>내용</div>
                   </div>
                   {calendarReports.map(report => (
                     <div key={report.id} className={styles.tableRow}>
-                      <div className={styles.colDist}>{report.distributors?.name}</div>
-                      <div className={styles.colHosp}>{report.hospitals?.name}</div>
-                      <div className={styles.colCat}>
+                      <div className={styles.col1}>{report.distributors?.name}</div>
+                      <div className={styles.col2}>{report.hospitals?.name}</div>
+                      <div className={styles.col3}>
                         <span className={styles.categoryBadge}>{report.category}</span>
                       </div>
-                      <div className={styles.colDept}>{report.department}</div>
-                      <div className={styles.colDoc}>{report.doctor_name}</div>
-                      <div className={styles.colCon}>{report.content}</div>
+                      <div className={styles.col4}>{report.department}</div>
+                      <div className={styles.col5}>{report.doctor_name}</div>
+                      <div className={styles.col6}>{report.content}</div>
                     </div>
                   ))}
                 </>
