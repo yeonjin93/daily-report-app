@@ -26,11 +26,17 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tabBtn:hover {
+  background: #e0e0e0;
 }
 
 .tabBtn.tabActive {
   background: #3b82f6;
   color: white;
+  border-color: #3b82f6;
 }
 
 .layout {
@@ -48,6 +54,7 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .panel h2 {
@@ -88,11 +95,18 @@
   cursor: pointer;
   font-size: 14px;
   color: #333;
+  transition: all 0.2s;
+}
+
+.listItem:hover {
+  background: #f0f0f0;
 }
 
 .listItem.active {
   background: #3b82f6;
   color: white;
+  border-color: #3b82f6;
+  font-weight: 500;
 }
 
 .history {
@@ -146,6 +160,16 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
+  font-family: inherit;
+  background: #fafafa;
+  color: #333;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
 }
 
 .chipGroup {
@@ -159,12 +183,20 @@
   background: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 20px;
+  font-size: 13px;
   cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+}
+
+.chip:hover {
+  background: #e0e0e0;
 }
 
 .chip.chipActive {
   background: #3b82f6;
   color: white;
+  border-color: #3b82f6;
 }
 
 .buttonGroup {
@@ -173,23 +205,35 @@
   margin-top: 16px;
 }
 
-.btnPrimary {
-  flex: 1;
-  padding: 8px 16px;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
+.btnPrimary,
 .btnSecondary {
   flex: 1;
   padding: 8px 16px;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnPrimary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btnPrimary:hover {
+  background: #2563eb;
+}
+
+.btnSecondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btnSecondary:hover {
+  background: #e0e0e0;
 }
 
 .historyLayout {
@@ -205,12 +249,20 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  max-height: 800px;
+  overflow-y: auto;
 }
 
 .historySidebar h2 {
   font-size: 14px;
   margin-bottom: 12px;
   color: #333;
+  margin-top: 0;
+}
+
+.historySidebar h2:not(:first-child) {
+  margin-top: 20px;
 }
 
 .historyContentPanel {
@@ -218,6 +270,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
 }
@@ -241,7 +294,13 @@
   color: white;
   border: none;
   border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.downloadBtn:hover {
+  background: #059669;
 }
 
 .searchBoxHistory {
@@ -249,6 +308,7 @@
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
+  font-size: 14px;
   margin-bottom: 16px;
 }
 
@@ -259,7 +319,7 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 100px 80px 100px 100px 1fr 60px;
+  grid-template-columns: 100px 80px 100px 100px 1fr 80px;
   gap: 10px;
   padding: 12px;
   background: #f9f9f9;
@@ -269,11 +329,13 @@
   font-size: 13px;
   color: #333;
   margin-bottom: 8px;
+  position: sticky;
+  top: 0;
 }
 
 .tableRow {
   display: grid;
-  grid-template-columns: 100px 80px 100px 100px 1fr 60px;
+  grid-template-columns: 100px 80px 100px 100px 1fr 80px;
   gap: 10px;
   padding: 12px;
   background: white;
@@ -282,6 +344,11 @@
   margin-bottom: 8px;
   font-size: 13px;
   color: #333;
+  align-items: center;
+}
+
+.col1, .col2, .col3, .col4, .col5, .col6 {
+  word-break: break-word;
 }
 
 .categoryBadge {
@@ -293,8 +360,21 @@
   font-size: 11px;
 }
 
+.deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+.deleteBtn:hover {
+  opacity: 0.7;
+}
+
 .empty {
   color: #999;
+  font-size: 13px;
   text-align: center;
   padding: 20px 0;
 }
@@ -303,6 +383,7 @@
   color: #999;
   font-size: 12px;
   margin-top: 8px;
+  font-style: italic;
 }
 
 /* 캘린더 스타일 */
@@ -319,6 +400,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .calendarRight {
@@ -328,6 +410,7 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .calendar {
@@ -354,6 +437,11 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
+  transition: all 0.2s;
+}
+
+.calendarHeader button:hover {
+  background: #e0e0e0;
 }
 
 .calendarWeekdays {
@@ -375,7 +463,6 @@
 
 .calendarDays {
   background: #ddd;
-  gap: 1px;
   display: flex;
   flex-direction: column;
 }
@@ -393,6 +480,7 @@
   cursor: pointer;
   position: relative;
   border: 1px solid transparent;
+  transition: all 0.2s;
 }
 
 .calendarDay:hover {
@@ -431,10 +519,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.colDist, .colHosp, .colCat, .colDept, .colDoc, .colCon {
-  word-break: break-word;
 }
 
 @media (max-width: 1200px) {
