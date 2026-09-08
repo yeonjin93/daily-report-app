@@ -24,6 +24,7 @@ export default function Home() {
   const [allReports, setAllReports] = useState({});
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(new Date().toISOString().split('T')[0]);
   const [calendarReports, setCalendarReports] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   
   const [searchDist, setSearchDist] = useState('');
   const [formData, setFormData] = useState({
@@ -240,6 +241,52 @@ export default function Home() {
     }
   };
 
+  const handleEditReport = (report) => {
+    setSelectedDist({ id: report.distributor_id, name: report.distributors?.name });
+    setSelectedHosp({ id: report.hospital_id, name: report.hospitals?.name });
+    setFormData({
+      date: report.date,
+      department: report.department,
+      doctorName: report.doctor_name,
+      content: report.content
+    });
+    setSelectedCat(report.category);
+    setEditingId(report.id);
+    setTab('report');
+  };
+
+const handleUpdateReport = async () => {
+    if (!selectedDist || !selectedHosp || !selectedCat || !editingId) {
+      alert('모든 필드를 입력해주세요!');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('daily_reports')
+        .update({
+          date: formData.date,
+          department: formData.department,
+          doctor_name: formData.doctorName,
+          category: selectedCat,
+          content: formData.content
+        })
+        .eq('id', editingId);
+
+      if (error) throw error;
+      
+      alert('수정되었습니다!');
+      setEditingId(null);
+      clearForm();
+      loadHistoryReports(selectedHospHistory.id);
+      loadCalendarData(currentMonth);
+    } catch (error) {
+      console.error('Error updating report:', error);
+      alert('수정 실패: ' + error.message);
+    }
+  };
+
+const handleDeleteReport = async (reportId) => {
   const handleDeleteHistoryReport = async (reportId) => {
     console.log('삭제 시도:', reportId);
     if (!confirm('정말 삭제하시겠습니까?')) return;
