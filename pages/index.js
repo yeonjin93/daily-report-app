@@ -4,7 +4,7 @@ import styles from '../styles/Home.module.css';
 import { eachDayOfInterval, startOfMonth, endOfMonth, format, startOfWeek, endOfWeek, isSameMonth } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
-const CATEGORIES = ['샘플링', '코딩', '불만', '제품설명회'];
+const CATEGORIES = ['샘플링', '코딩', '불만', '제품설명회', '피드백', '정기방문', '수술참관', '기타'];
 
 export default function Home() {
   const [tab, setTab] = useState('report');
