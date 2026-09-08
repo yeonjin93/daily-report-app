@@ -716,13 +716,20 @@ const downloadCalendarCSV = () => {
                         <div className={styles.col6}>
                           <button
                             className={styles.deleteBtn}
+                            onClick={() => handleEditReport(report)}
+                            style={{marginRight: '4px'}}
+                            title="수정"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className={styles.deleteBtn}
                             onClick={() => handleDeleteHistoryReport(report.id)}
+                            title="삭제"
                           >
                             🗑️
                           </button>
                         </div>
-                      </div>
-                    ))}
                   </>
                 )}
               </div>
