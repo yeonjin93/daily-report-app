@@ -306,15 +306,14 @@ export default function Home() {
     link.click();
   };
 
-  const downloadCalendarCSV = () => {
+const downloadCalendarCSV = () => {
     if (calendarReports.length === 0) {
       alert('다운로드할 데이터가 없습니다!');
       return;
     }
 
-    const headers = ['날짜', '대리점', '병원', '카테고리', '과', '의료진', '내용'];
+    const headers = ['대리점', '병원', '카테고리', '과', '의료진', '내용'];
     const rows = calendarReports.map(r => [
-      r.date,
       r.distributors?.name || '',
       r.hospitals?.name || '',
       r.category,
